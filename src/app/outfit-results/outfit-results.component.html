@@ -1,0 +1,19 @@
+<div *ngIf="loading" class="spinner">Loading suggestions…</div>
+<div *ngIf="error" class="error">{{ error }}</div>
+
+<div class="grid" *ngIf="!loading && !error">
+  <a class="card" *ngFor="let item of items" [href]="item.url" target="_blank" rel="noopener">
+    <div class="thumb" *ngIf="item.imageUrl; else noimg">
+      <img [src]="item.imageUrl" [alt]="item.title" loading="lazy" />
+    </div>
+    <ng-template #noimg><div class="thumb placeholder">No image</div></ng-template>
+
+    <div class="meta">
+      <div class="title">{{ item.title }}</div>
+      <div class="sub">
+        <span class="source">{{ item.source || '—' }}</span>
+        <span class="price" *ngIf="item.price">{{ item.price }}</span>
+      </div>
+    </div>
+  </a>
+</div>

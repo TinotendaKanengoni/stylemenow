@@ -1,0 +1,103 @@
+<!-- Hero / welcome -->
+<section class="hero">
+  <h1>Welcome {{ userName }}</h1>
+  <p class="typewriter">{{ typed }}</p>
+
+  <div class="upload-card">
+    <label class="uploader">
+      <input type="file" (change)="onFile($event)" accept="image/*" />
+      <span class="icon">📎</span>
+      <span>Upload picture of a top or bottom</span>
+    </label>
+    <button (click)="runAnalyze()" [disabled]="loading || !file">Analyze</button>
+  </div>
+
+  <div class="preview" *ngIf="previewUrl">
+    <img [src]="previewUrl" alt="Selected preview" />
+  </div>
+
+  <div class="err" *ngIf="error">{{ error }}</div>
+  <span *ngIf="loading" class="loading">Analyzing…</span>
+</section>
+
+<!-- Detected info -->
+<section class="panel" *ngIf="result">
+  <h3>Detected</h3>
+  <div class="det">
+    <div><strong>Dominant color:</strong> {{ result.analysis.dominantColor }}</div>
+    <div><strong>Dark:</strong> {{ result.analysis.isDark ? 'Yes' : 'No' }}</div>
+    <div><strong>Warm:</strong> {{ result.analysis.isWarm ? 'Yes' : 'No' }}</div>
+    <div *ngIf="result.analysis.detectedItemType">
+      <strong>Item:</strong> {{ result.analysis.detectedItemType }}
+    </div>
+  </div>
+
+  <h3 *ngIf="result.matches?.length">Fit suggestions</h3>
+  <div class="matches" *ngIf="result.matches?.length">
+    <label *ngFor="let m of result.matches">
+      <input
+        type="radio"
+        name="m"
+        [(ngModel)]="selectedMatch"
+        [ngModelOptions]="{standalone:true}"
+        [value]="m"
+        (change)="applyMatchToSearch()"
+      />
+      <span>{{ m.itemType }} • {{ m.color }} • {{ m.style }}</span>
+    </label>
+  </div>
+</section>
+
+<!-- Ideas search -->
+<section class="panel" *ngIf="result">
+  <h3>Find outfit ideas</h3>
+
+  <div class="row">
+    <label>
+      Color
+      <select [(ngModel)]="searchColor">
+        <option *ngFor="let c of COLORS" [value]="c">{{ c }}</option>
+      </select>
+    </label>
+
+    <label>
+      Item Type
+      <select [(ngModel)]="searchItemType">
+        <option *ngFor="let i of ITEM_TYPES" [value]="i">{{ i }}</option>
+      </select>
+    </label>
+
+    <label>
+      Style (optional)
+      <select [(ngModel)]="searchStyle">
+        <option [ngValue]="undefined">—</option>
+        <option *ngFor="let s of STYLES" [value]="s">{{ s }}</option>
+      </select>
+    </label>
+
+    <button (click)="fetchIdeas()" style="margin-top:8px;">Search ideas</button>
+  </div>
+
+  <div *ngIf="ideasLoading" class="spinner">Loading suggestions…</div>
+  <div *ngIf="ideasError" class="error">{{ ideasError }}</div>
+
+  <div class="grid" *ngIf="!ideasLoading && ideas.length">
+    <a class="card" *ngFor="let item of ideas" [href]="item.url" target="_blank" rel="noopener">
+      <div class="thumb">
+        <img *ngIf="item.imageUrl; else noimg" [src]="item.imageUrl" [alt]="item.title" loading="lazy" />
+        <ng-template #noimg><div class="thumb placeholder">No image</div></ng-template>
+      </div>
+      <div class="meta">
+        <div class="title">{{ item.title }}</div>
+        <div class="sub">
+          <span class="source">{{ item.source || '—' }}</span>
+          <span class="price" *ngIf="item.price">{{ item.price }}</span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div *ngIf="!ideasLoading && !ideas.length && !ideasError" class="muted">
+    No ideas yet. Try different inputs (color / item / style).
+  </div>
+</section>
