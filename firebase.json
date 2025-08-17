@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/stylemenow",
+    "public": "dist/stylemenow/browser",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
     "rewrites": [{ "source": "**", "destination": "/index.html" }]
   }
